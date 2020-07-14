@@ -9,9 +9,9 @@ class life360:
     circles_url = "circles.json"
     circle_url = "circles/"
 
-    def __init__(self, token=None, username=None, password=None):
+    def __init__(self, token=None, user_email=None, password=None):
         self.token        = token
-        self.username     = username
+        self.user_email   = user_email
         self.password     = password
         self.access_token = None
 
@@ -29,7 +29,7 @@ class life360:
         url = self.base_url + self.token_url
         data = {
             "grant_type": "password",
-            "username":   self.username,
+            "user_email":   self.user_email,
             "password":   self.password,
         }
         authheader = f"Basic {self.token}"
