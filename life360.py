@@ -1,58 +1,53 @@
-import urllib
-import requests
+#!/usr/bin/env python3
+
 import json
+import requests
 
 class life360:
-    
     base_url = "https://api.life360.com/v3/"
     token_url = "oauth2/token.json"
     circles_url = "circles.json"
     circle_url = "circles/"
 
-    def __init__(self, authorization_token=None, username=None, password=None):
-        self.authorization_token = authorization_token
-        self.username = username
-        self.password = password
+    def __init__(self, token=None, username=None, password=None):
+        self.token        = token
+        self.username     = username
+        self.password     = password
+        self.access_token = None
 
-    def make_request(self, url, params=None, method='GET', authheader=None):
+    def make_request(self, url, data=None, method='GET', authheader=None):
         headers = {'Accept': 'application/json'}
         if authheader:
             headers.update({'Authorization': authheader, 'cache-control': "no-cache",})
-        
         if method == 'GET':
             r = requests.get(url, headers=headers)
         elif method == 'POST':
-            r = requests.post(url, data=params, headers=headers)
-
+            r = requests.post(url, data=data, headers=headers)
         return r.json()
 
     def authenticate(self):
-        
-
         url = self.base_url + self.token_url
-        params = {
-            "grant_type":"password",
-            "username":self.username,
-            "password":self.password,
+        data = {
+            "grant_type": "password",
+            "username":   self.username,
+            "password":   self.password,
         }
-
-        r = self.make_request(url=url, params=params, method='POST', authheader="Basic " + self.authorization_token)
-        try:
+        authheader = f"Basic {self.token}"
+        r = self.make_request(url, data=data, method='POST', authheader=authheader)
+        if 'access_token' in r:
             self.access_token = r['access_token']
             return True
-        except:
+        else:
             return False
 
-    def get_circles(self):
+    def get_all_circles(self):
         url = self.base_url + self.circles_url
-        authheader="bearer " + self.access_token
-        r = self.make_request(url=url, method='GET', authheader=authheader)
+        authheader = f"bearer {self.access_token}"
+        r = self.make_request(url, method='GET', authheader=authheader)
         return r['circles']
 
-    def get_circle(self, circle_id):
+    def get_circle_by_id(self, circle_id):
         url = self.base_url + self.circle_url + circle_id
-        authheader="bearer " + self.access_token
-        r = self.make_request(url=url, method='GET', authheader=authheader)
+        authheader = f"bearer {self.access_token}"
+        r = self.make_request(url, method='GET', authheader=authheader)
         return r
-
-   
