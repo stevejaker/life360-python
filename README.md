@@ -15,7 +15,7 @@ email    = "email@address.com"
 password = "super long password"
 
 # Instantiate the API
-api = life360(token=token, email=email, password=password)
+api = life360(token=toen, email=email, password=password)
 
 # Authenticate
 if api.authenticate():
