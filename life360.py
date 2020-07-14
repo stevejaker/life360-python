@@ -24,6 +24,11 @@ class life360:
         self.password     = password
         self.access_token = None
         self.circles      = {}
+        if self.token is None:
+            self.setDefaultToken()
+
+    def setDefaultToken(self):
+        self.token = "cFJFcXVnYWJSZXRyZTRFc3RldGhlcnVmcmVQdW1hbUV4dWNyRUh1YzptM2ZydXBSZXRSZXN3ZXJFQ2hBUHJFOTZxYWtFZHI0Vg=="
 
     def make_request(self, url, data=None, method='GET', authheader=None):
         headers = {'Accept': 'application/json'}

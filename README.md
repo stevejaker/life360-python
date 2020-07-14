@@ -8,6 +8,7 @@ It is pretty straight forward and should be easy to integrate with any project.
 
 ```python
 # From what I can tell, this has not changed in 3+ years...
+# The token can be omitted if desired. If a token is NOT provided, the below token will be loaded by default.
 token = "cFJFcXVnYWJSZXRyZTRFc3RldGhlcnVmcmVQdW1hbUV4dWNyRUh1YzptM2ZydXBSZXRSZXN3ZXJFQ2hBUHJFOTZxYWtFZHI0Vg=="
 
 # Email address and password for your life360 account
