@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 
 import json
+import fuzzy
 import requests
+
+class Error(Exception):
+    pass
+
+class CircleNotFoundError(Error):
+    pass
+
 
 class life360:
     base_url = "https://api.life360.com/v3/"
@@ -9,11 +17,13 @@ class life360:
     circles_url = "circles.json"
     circle_url = "circles/"
 
-    def __init__(self, token=None, user_email=None, password=None):
+    def __init__(self, token=None, email=None, password=None):
+        self.soundex      = fuzzy.Soundex(4)
         self.token        = token
-        self.user_email   = user_email
+        self.email        = email
         self.password     = password
         self.access_token = None
+        self.circles      = {}
 
     def make_request(self, url, data=None, method='GET', authheader=None):
         headers = {'Accept': 'application/json'}
@@ -25,11 +35,29 @@ class life360:
             r = requests.post(url, data=data, headers=headers)
         return r.json()
 
+    def save_circle_data(self, data):
+        for circle in data:
+            name = circle['name']
+            soundex = self.soundex(name)
+            id = circle['id']
+            self.circles[name] = id
+            self.circles[soundex] = id
+
+    def get_id_from_name(self, name):
+        soundex = self.soundex(name)
+        if name in self.circles:
+            return self.circles[name]
+        elif soundex in self.circles:
+            return self.circles[soundex]
+        else:
+            raise CircleNotFoundError(f"Unable to locate circle with name: '{name}'")
+
+
     def authenticate(self):
         url = self.base_url + self.token_url
         data = {
             "grant_type": "password",
-            "user_email":   self.user_email,
+            "username":   self.email,
             "password":   self.password,
         }
         authheader = f"Basic {self.token}"
@@ -44,6 +72,7 @@ class life360:
         url = self.base_url + self.circles_url
         authheader = f"bearer {self.access_token}"
         r = self.make_request(url, method='GET', authheader=authheader)
+        self.save_circle_data(r['circles'])
         return r['circles']
 
     def get_circle_by_id(self, circle_id):
@@ -51,3 +80,7 @@ class life360:
         authheader = f"bearer {self.access_token}"
         r = self.make_request(url, method='GET', authheader=authheader)
         return r
+
+    def get_circle_by_name(self, name):
+        id = self.get_id_from_name(name)
+        return self.get_circle_by_id(id)

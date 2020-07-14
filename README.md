@@ -8,31 +8,36 @@ It is pretty straight forward and should be easy to integrate with any project.
 
     # basic authorization hash (base64 if you want to decode it and see the sekrets)
     # this is a googleable or sniffable value. i imagine life360 changes this sometimes.
-    authorization_token = "cFJFcXVnYWJSZXRyZTRFc3RldGhlcnVmcmVQdW1hbUV4dWNyRUh1YzptM2ZydXBSZXRSZXN3ZXJFQ2hBUHJFOTZxYWtFZHI0Vg=="
+    token = "cFJFcXVnYWJSZXRyZTRFc3RldGhlcnVmcmVQdW1hbUV4dWNyRUh1YzptM2ZydXBSZXRSZXN3ZXJFQ2hBUHJFOTZxYWtFZHI0Vg=="
 
-    # your username and password (hope they are secure!)
-    username = "email@address.com"
+    # your email and password (hope they are secure!)
+    email    = "email@address.com"
     password = "super long password"
 
     #instantiate the API
-    api = life360(authorization_token=authorization_token, username=username, password=password)
+    api = life360(token=token, email=email, password=password)
 
     #Authenticate!
     if api.authenticate():
 
-        #Grab some circles returns json
-        circles =  api.get_circles()
+        # Returns a list of circles in json format
+        circles =  api.get_all_circles()
 
-        #grab id
-        id = circles[0]['id']
+        # Get details on a specific circle
+        # You have 2 options: to locate the circle by the id, or by the circle name
 
-        #Let's get your circle!
-        circle = api.get_circle(id)
+        # Option 1 -- Get circle by id:
+        id = circles[0]['id'] # For simplicity, I'm using the first circle in the list
+        circle = api.get_circle_by_id(id)
 
-## Next?
+        # Option 2 -- Get circle by name:
+        # Internally, the relationship between circle name and id is stored within
+        # the life360 class. This method maps the name to it's id, returning the
+        # same data as get_circle_by_id. This is just to make it easier to select
+        # circles if you know the name, but not the id. Soundex is also used to
+        # simplify selection by name.
+        circle = api.get_circle_by_name(name)
 
-Would love to see this integrated into some home assistant projects. Maybe pushing the updates to MQTT.
-
-## HMU
+## Contact Information
 
 stevenjacobsen@msn.com
