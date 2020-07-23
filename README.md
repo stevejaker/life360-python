@@ -22,10 +22,10 @@ api = life360(token=token, email=email, password=password)
 if api.authenticate():
 
     # Returns a list of circles in json format
-    circles =  api.get_all_circles()
+    circles =  api.get_all_circles() # Returns a list of circles
 
-    # Get details on a specific circle
-    # You have 2 options: to locate the circle by the id, or by the circle name
+    # You can make a single request for full details on a specific circle
+    # You have 2 options: locate circle by the id, or by the circle name
 
     # Option 1 -- Get circle by id:
     id = circles[0]['id'] # For simplicity, I'm using the first circle in the list
@@ -37,6 +37,12 @@ if api.authenticate():
     # This method maps the name to it's id, returning the same data as get_circle_by_id.
     # Soundex is also used to simplify selection by name.
     circle = api.get_circle_by_name(name)
+    # Do whatever you want with the data :)
+
+    # BETA: You can also constantly scan your circle repeatedly.
+    #     This method is still in beta and is constantly being updated.
+    api.scan_circle(id=id)
+
 ```
 
 ## Contact Information

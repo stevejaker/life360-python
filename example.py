@@ -1,63 +1,41 @@
 from life360 import life360
-import datetime
-
-#This is only here to make the example display nicer
-def prettydate( d):
-    diff = datetime.datetime.utcnow() - d
-    s = diff.seconds
-    if diff.days > 7 or diff.days < 0:
-        return d.strftime('%d %b %y')
-    elif diff.days == 1:
-        return '1 day ago'
-    elif diff.days > 1:
-        return '{} days ago'.format(diff.days)
-    elif s <= 1:
-        return 'just now'
-    elif s < 60:
-        return '{} seconds ago'.format(s)
-    elif s < 120:
-        return '1 minute ago'
-    elif s < 3600:
-        return '{} minutes ago'.format(s/60)
-    elif s < 7200:
-        return '1 hour ago'
-    else:
-        return '{} hours ago'.format(s/3600)
 
 if __name__ == "__main__":
+    # From what I can tell, this has not changed in 3+ years...
+    # The token can be omitted if desired. If a token is NOT provided, the below token will be loaded by default.
+    token = "cFJFcXVnYWJSZXRyZTRFc3RldGhlcnVmcmVQdW1hbUV4dWNyRUh1YzptM2ZydXBSZXRSZXN3ZXJFQ2hBUHJFOTZxYWtFZHI0Vg=="
 
-    # basic authorization hash (base64 if you want to decode it and see the sekrets)
-    # this is a googleable or sniffable value. i imagine life360 changes this sometimes. 
-    authorization_token = "cFJFcXVnYWJSZXRyZTRFc3RldGhlcnVmcmVQdW1hbUV4dWNyRUh1YzptM2ZydXBSZXRSZXN3ZXJFQ2hBUHJFOTZxYWtFZHI0Vg=="
-    
-    # your username and password (hope they are secure!)
-    username = "email@address.com"
+    # Email address and password for your life360 account
+    email    = "email@address.com"
     password = "super long password"
 
-    #instantiate the API
-    api = life360(authorization_token=authorization_token, username=username, password=password)
+    # Instantiate the API
+    api = life360(token=token, email=email, password=password)
+
+    # Authenticate
     if api.authenticate():
 
-        #Grab some circles returns json
-        circles =  api.get_circles()
-        
-        #grab id
-        id = circles[0]['id']
+        # Returns a list of circles in json format
+        circles =  api.get_all_circles() # Returns a list of circles
 
-        #Let's get your circle!
-        circle = api.get_circle(id)
+        # You can make a single request for full details on a specific circle
+        # You have 2 options: locate circle by the id, or by the circle name
 
-        #Let's display some goodies
+        # Option 1 -- Get circle by id:
+        id = circles[0]['id'] # For simplicity, I'm using the first circle in the list
+        circle = api.get_circle_by_id(id)
 
-        print "Circle name:", circle['name']
-        print "Members (" + circle['memberCount'] + "):"
-        for m in circle['members']:
+        # Option 2 -- Get circle by name:
+        # This is just to make it easier to select circles if you know the name, but not the id.
+        # Internally, the relationship between circle name and id is stored within the life360 class.
+        # This method maps the name to it's id, returning the same data as get_circle_by_id.
+        # Soundex is also used to simplify selection by name.
+        circle = api.get_circle_by_name(name)
+        # Do whatever you want with the data :)
 
-            print "\tName:", m['firstName'],m['lastName']
-            print "\tLocation:" , m['location']['name']
-            print "\tLatLng:" , m['location']['latitude'] +", "+ m['location']['longitude']
-            print "\tHas been at " +m['location']['name'] +" since " + prettydate(datetime.datetime.fromtimestamp(int(m['location']['since'])))
-            print "\tBattery level:" , m['location']['battery'] +"%"
-            print "\t"
+        # BETA: You can also constantly scan your circle repeatedly.
+        #     This method is still in beta and is constantly being updated.
+        api.scan_circle(id=id)
+
     else:
         print "Error authenticating"
